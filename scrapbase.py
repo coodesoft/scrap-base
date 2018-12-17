@@ -26,7 +26,7 @@ class Dato:
 		self.telefono      = ''
 
 	def getNombreCampos(self):
-		return [ ]
+		return ["Nombres", "Apellidos", "Direccion", "Codigo_postal", "Ciudad", "Provincia", "Zona", "Teléfono" ]
 
 	def getRow(self):
 		return[self.nombres, self.apellidos, self.direccion, self.codigo_postal, self.ciudad, self.provincia, self.zona, self.telefono ]
@@ -45,6 +45,13 @@ class CSVManager:
 	def write(self,r):
 		self.archivo.writerow(r)
 
+class SessionManager:
+	def __init__(self):
+		self.session = requests.session()
+
+	def get(self,u):
+		return self.session.get(u)
+
 class Scrap:
 	def __init__(self):
 		self.busqueda_nombre   = ''
@@ -56,7 +63,7 @@ class Scrap:
 
 		self.provincias   = []
 		self.url_busqueda = ''
-		self.sesion       = requests.session()
+		self.sesionMNG    = SessionManager()
 
 		self.pagina         = 1
 		self.cont_registros = 1
@@ -68,9 +75,9 @@ class Scrap:
 
 		print('')
 		print('Consultando en página: '+str(self.pagina) )
-		resp = self.sesion.get( '' ) # Peticion para obtener las cookies
-		print(resp.cookies)
-		resp = self.sesion.get( self.getUrlBusqueda(), resp.cookies )
+		resp = self.sesionMNG.get( '' ) # Peticion para obtener las cookies
+		print(self.getUrlBusqueda())
+		resp = self.sesionMNG.get( self.getUrlBusqueda() )
 
 		print("respuesta estado: "+str(resp.status_code) )
 
@@ -103,11 +110,11 @@ class Scrap:
 
 	def datosValidos(self):
 		if self.busqueda_nombre == '':
-			this.errors = 'Es necesario especificar el nombre'
+			self.errors = 'Es necesario especificar el nombre'
 			return False
 
 		if self.provincia == '':
-			this.errors = 'Es necesario especificar una provincia'
+			self.errors = 'Es necesario especificar una provincia'
 			return False
 
 		return True
@@ -134,6 +141,8 @@ if args.apellido:
 
 if args.archivo:
 	a_salida_CSV = args.archivo
+else:
+	print('Es necesario especificar un archivo de archivo de salida, con el parametro -w, o --archivo')
 
 if args.provincia:
 	scrap.provincia = args.provincia
@@ -144,7 +153,7 @@ if args.ciudad:
 class Provincias:
 	def __init__(self):
 		self.provincias = [
-			
+		
 		]
 
 	def getText(self,cod):
